@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة المسير الاحترافية</title>
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --dark-bg: #0a0a0a;
+            --card-bg: #141414;
+            --text-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-image: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.15);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #333;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--neon-green);
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--neon-green);
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 1.2rem; /* تكبير الخط */
+            font-weight: bold;
+            color: var(--neon-green);
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            background: #000;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: var(--neon-green);
+            font-size: 1.2rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #00cc33;
+            transform: scale(1.02);
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: #000;
+            border-radius: 12px;
+            border: 1px dashed var(--neon-green);
+            text-align: center;
+            display: none;
+        }
+
+        .dist-info {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .timer-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            direction: ltr; /* لعرض الوقت من اليسار لليمين H:M:S */
+        }
+
+        .time-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .val {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .lbl {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>لوحة المسير</h2>
+    
+    <div class="input-group">
+        <label>سرعة المسير (%)</label>
+        <input type="number" id="speedRatio" step="any">
+    </div>
+
+    <div class="input-group">
+        <label>بداية المسير (متر)</label>
+        <input type="number" id="startPoint">
+    </div>
+
+    <div class="input-group">
+        <label>نهاية المسير (متر)</label>
+        <input type="number" id="endPoint">
+    </div>
+
+    <button onclick="calculate()">احسب الآن</button>
+
+    <div id="resultBox" class="result-box">
+        <span class="dist-info" id="distDisplay"></span>
+        <div class="timer-display">
+            <div class="time-unit">
+                <span class="val" id="h">00</span>
+                <span class="lbl">ساعة</span>
+            </div>
+            <div class="val">:</div>
+            <div class="time-unit">
+                <span class="val" id="m">00</span>
+                <span class="lbl">دقيقة</span>
+            </div>
+            <div class="val">:</div>
+            <div class="time-unit">
+                <span class="val" id="s">00</span>
+                <span class="lbl">ثانية</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        const CONST_SPEED = 10;
+        const spdInput = document.getElementById('speedRatio').value;
+        const startInput = document.getElementById('startPoint').value;
+        const endInput = document.getElementById('endPoint').value;
+
+        if (spdInput === "" || startInput === "" || endInput === "") {
+            alert("الرجاء ملء جميع الخانات");
+            return;
+        }
+
+        const speed = parseFloat(spdInput);
+        const start = parseFloat(startInput);
+        const end = parseFloat(endInput);
+
+        if (speed <= 0) {
+            alert("السرعة يجب أن تكون أكبر من صفر");
+            return;
+        }
+
+        const distance = Math.abs(end - start);
+        const totalMinutes = distance / (CONST_SPEED * (speed / 100));
+
+        const hrs = Math.floor(totalMinutes / 60);
+        const mins = Math.floor(totalMinutes % 60);
+        const secs = Math.round((totalMinutes - Math.floor(totalMinutes)) * 60);
+
+        // إظهار النتائج
+        document.getElementById('distDisplay').innerText = "المسافة الإجمالية: " + distance + " متر";
+        document.getElementById('h').innerText = hrs.toString().padStart(2, '0');
+        document.getElementById('m').innerText = mins.toString().padStart(2, '0');
+        document.getElementById('s').innerText = secs.toString().padStart(2, '0');
+        
+        document.getElementById('resultBox').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
